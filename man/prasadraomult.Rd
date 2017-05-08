@@ -1,131 +1,60 @@
 \name{prasadraomult}
 \alias{prasadraomult}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Estimate of the matrix of variance component in Fay Herriot Model using Prasad Rao Method
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function returns a matrix of the variance component in the multivariate Fay Herriot Model. 
+It is an unbiased estimator based on method of moments and is analogous to the Univariate Fay herriot estimator. Note that our function does not accept any missing values. Also this function should not be use if you have only one small area attribute. Use the function prasadrao instead.
+
 }
 \usage{
 prasadraomult(directest.mat, samplingvar.mat, samplingcov.mat, design.mat)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{directest.mat}{
-%%     ~~Describe \code{directest.mat} here~~
+  An nxq matrix of direct survey based estimates of q small area attributes on n small areas
 }
   \item{samplingvar.mat}{
-%%     ~~Describe \code{samplingvar.mat} here~~
+  An nxq matrix of known sampling variances of the q small area attributes on n small areas. Note that the i-th row of this matrix represents the sampling variances of the q small area attributes associated with the i-th small area.
 }
   \item{samplingcov.mat}{
-%%     ~~Describe \code{samplingcov.mat} here~~
+  An nx(q(q-1)/2) matrix of known sampling covariances of the q small area attributes on n small areas. Note that the i-th row of this matrix represents the sampling covariances of the q small area attributes associated with the i-th small area. The covariance terms in the matrix should occur in natural order, for example with 4 attributes the 6 columns of this matrix are cov(y1,y2), cov(y1,y3), cov(y1,y4), cov(y2,y3),  cov(y2,y4),cov(y3,y4) respectively.
 }
   \item{design.mat}{
-%%     ~~Describe \code{design.mat} here~~
+A numeric matrix. The first column is a column of ones(also called the intercept). 
+The other columns consist of observations of each of the covariates or the explanatory 
+variable in Fay Herriot Model.
+
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{estimate}{estimate of the matrix of variance component}
 }
 \references{
-%% ~put references to the literature/web site here ~
+
 }
 \author{
-%%  ~~who you are~~
+Abhishek Nandy
 }
 \note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+}
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{prasadraoest}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (directest.mat, samplingvar.mat, samplingcov.mat, design.mat) 
-{
-    require(Matrix)
-    require("Rmpfr")
-    options(digits = 16)
-    prasadraomult.nocov <- function(directest.mat, samplingvar.mat, 
-        samplingcov.mat) {
-        require(Matrix)
-        require("Rmpfr")
-        options(digits = 16)
-        n <- nrow(directest.mat)
-        design.mat <- matrix(1, n, 1)
-        p <- 1
-        q <- ncol(directest.mat)
-        areas <- nrow(directest.mat)
-        residual.transpose <- t(directest.mat) - rowMeans(t(directest.mat))
-        leverage <- rep(1 - 1/areas, areas)
-        adjust.varmat <- replicate(ncol(samplingvar.mat), leverage) * 
-            samplingvar.mat
-        adjust.var <- colSums(adjust.varmat)
-        adjust.covmat <- replicate(ncol(samplingcov.mat), leverage) * 
-            samplingcov.mat
-        adjust.cov <- colSums(adjust.covmat)
-        if (length(adjust.cov) == 1) {
-            adjust.cov = as.numeric(adjust.cov)
-        }
-        adjustment.mat <- diag(adjust.var)
-        adjustment.mat[lower.tri(adjustment.mat, diag = FALSE)] <- adjust.cov
-        adjustment.mat <- forceSymmetric(adjustment.mat, uplo = "L")
-        estimate <- (residual.transpose \%*\% t(residual.transpose) - 
-            adjustment.mat)/(areas - 1)
-        if (det(estimate) <= 0) {
-            return(1e-04 * diag(q))
-        }
-        else {
-            return(estimate)
-        }
-    }
-    if (missing(design.mat)) {
-        return(prasadraomult.nocov(directest.mat, samplingvar.mat, 
-            samplingcov.mat))
-    }
-    else {
-        projection <- function(mat) {
-            mat \%*\% solve(t(mat) \%*\% mat) \%*\% t(mat)
-        }
-        areas <- nrow(directest.mat)
-        proj <- projection(design.mat)
-        fit <- lm(directest.mat ~ design.mat)
-        residual.transpose <- t(fit$residuals)
-        leverage <- as.vector(diag(proj))
-        adjust.varmat <- replicate(ncol(samplingvar.mat), 1 - 
-            leverage) * samplingvar.mat
-        adjust.var <- colSums(adjust.varmat)
-        adjust.covmat <- replicate(ncol(samplingcov.mat), 1 - 
-            leverage) * samplingcov.mat
-        adjust.cov <- colSums(adjust.covmat)
-        if (length(adjust.cov) == 1) {
-            adjust.cov = as.numeric(adjust.cov)
-        }
-        adjustment.mat <- diag(adjust.var)
-        adjustment.mat[upper.tri(adjustment.mat, diag = FALSE)] <- adjust.cov
-        adjustment.mat[lower.tri(adjustment.mat, diag = FALSE)] <- adjust.cov
-        estimate <- (residual.transpose \%*\% t(residual.transpose) - 
-            adjustment.mat)/(areas - ncol(design.mat) - 1)
-        return(estimate)
-    }
   }
-}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+
+
+\keyword{ prasad rao }
+\keyword{ fay Herriot }
+\keyword{ small area estimation }
+\keyword{ variance component }
+\keyword{multivariate prasad rao}
+\keyword{ multivariate fay Herriot }

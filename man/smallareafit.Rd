@@ -1,7 +1,7 @@
 \name{smallareafit}
 \alias{smallareafit}
 \title{
-Fits a Fay Herriot Model to data
+Fits a Univariate Fay Herriot Model to data
 }
 \description{
 Fits a Fay Herriot model to the data and returns a list of items which area
