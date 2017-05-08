@@ -1,11 +1,13 @@
 \name{smallareafit.mult}
 \alias{smallareafit.mult}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Fits a multivariate Fay-Herriot model to data
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+
+Fits a Fay Herriot model to the data and returns a list of items which area
+ estimates of different paramaters and mse of the estimates of the small area 
+means the details of which are provided in  the value section.
 }
 \usage{
 smallareafit.mult(directest.mat, samplingvar.mat, samplingcov.mat, design.mat)
