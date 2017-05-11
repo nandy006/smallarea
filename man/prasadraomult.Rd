@@ -48,6 +48,58 @@ Abhishek Nandy
 \code{\link{prasadraoest}}
 }
 \examples{
+
+set.seed(55)
+n <- 500                                          # Number of small areas
+p <- 1                                            # Number of covariates (1 implies intercept only)
+q <- 5                                            # Number of small area attributes for each small area
+rho <- 0.3
+psi <- matrix( c( 1, rho, rho^2, rho^3, rho^4,    # Matrix of variance component
+                  rho, 1, rho,rho^2, rho^3,
+                  rho^2, rho, 1 , rho, rho^2,
+                  rho^3, rho^2, rho, 1, rho^3,
+                  rho^4, rho^3,rho^2, rho, 1), q, q )
+require( MASS )
+Var <- matrix( rep( 1 , times = n*q ), n, q )     # Matrix of Sampling variances
+samplingvar.mat <- Var
+
+rho <- c( runif( n/2 , 0.8, 0.9 ), runif( n/2, -0.9, -0.8 ) )
+rho2 <- rho^2
+rho3 <- rho^3
+rho4 <- rho^4
+
+Cov <- as.matrix( cbind( rho, rho2, rho3, rho4, rho, rho2, rho3, rho, rho2, rho ) ) # Matrix of sampling covariances
+samplingcov.mat <- Cov
+
+theta <- rep( 0, times = n*q )                    
+directest <- rep( 0, times = n*q )
+
+
+
+
+for( i in 1:n ){                              # Simulating unknown small area means
+  theta[ ( ( i -1 )*q + 1 ):( i*q ) ]  <- mvrnorm( 1, mu =  rep(0, q) , 
+                                                   Sigma = psi )
+}
+
+
+
+
+  directest <- rep( 0, times = n*q )
+  for( i in 1:n ){                            # Simulating direct survey based estimators
+    directest[ ( ( i -1 )*q + 1 ):( i*q ) ]  <- mvrnorm( 1, mu = theta[ ( ( i -1 )*q + 1 ):( i*q ) ], 
+                                                         Sigma = matrix( c( 1, rho[i], rho[i]^2, rho[i]^3, rho[i]^4,
+                                                                            rho[i], 1, rho[i],rho[i]^2, rho[i]^3,
+                                                                            rho[i]^2, rho[i], 1 , rho[i], rho[i]^2,
+                                                                            rho[i]^3, rho[i]^2, rho[i], 1, rho[i]^3,
+                                                                            rho[i]^4, rho[i]^3,rho[i]^2, rho[i], 1)
+                                                                         , q, q ))
+  }
+  
+  
+  directest.mat <- matrix( directest, n, q, byrow = TRUE )
+  prasadraomult( directest.mat,  samplingvar.mat, samplingcov.mat )
+
   }
 
 
